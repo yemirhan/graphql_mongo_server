@@ -8,7 +8,7 @@ export class UserResolver {
   hello() {
     return "hi!";
   }
-  @Query(() => String)
+  @Query(() => [User])
   async Users(): Promise<User[]> {
     return await UserModel.find({});
   }

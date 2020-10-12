@@ -6,13 +6,13 @@ import { Request, Response } from "express";
 import cors from "cors";
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/UserResolver";
-import { TypegooseMiddleware } from "../typegoose-middleware";
+
 import { ObjectId } from "mongodb";
 import { ObjectIdScalar } from "../object-id.scalar";
-import * as mongoose from "mongoose";
+import mongoose from "mongoose";
 (async () => {
   const app = express();
-  await mongoose.connect(`${process.env.MONGODB_URL!}`);
+  await mongoose.connect(process.env.MONGODB_URL!);
   app.use(
     cors({
       origin: "http://localhost:3000",
@@ -22,7 +22,6 @@ import * as mongoose from "mongoose";
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [UserResolver],
-      globalMiddlewares: [TypegooseMiddleware],
       scalarsMap: [{ type: ObjectId, scalar: ObjectIdScalar }],
     }),
   });
