@@ -9,7 +9,7 @@
     "dev": "nodemon dist/index.js",
     "dev-watch": "nodemon --exec ts-node src/index.ts",
     "start": "node dist/index.js",
-    "tsc": "tsc"
+    "build": "tsc -b"
   },
   "keywords": [],
   "author": "",
