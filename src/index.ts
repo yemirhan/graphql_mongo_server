@@ -5,14 +5,17 @@ import express from "express";
 import { Request, Response } from "express";
 import cors from "cors";
 import { buildSchema } from "type-graphql";
-import { UserResolver } from "./resolvers/UserResolver";
-
+import * as path from "path";
 import { ObjectId } from "mongodb";
-import { ObjectIdScalar } from "../object-id.scalar";
+import { ObjectIdScalar } from "./object-id.scalar";
 import mongoose from "mongoose";
+import { UserResolver } from "./resolvers/UserResolver";
 (async () => {
   const app = express();
-  await mongoose.connect(process.env.MONGODB_URL!);
+  await mongoose.connect(process.env.MONGODB_URL!, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
   app.use(
     cors({
       origin: "http://localhost:3000",
@@ -23,6 +26,7 @@ import mongoose from "mongoose";
     schema: await buildSchema({
       resolvers: [UserResolver],
       scalarsMap: [{ type: ObjectId, scalar: ObjectIdScalar }],
+      emitSchemaFile: path.resolve(__dirname, "schema.gql"),
     }),
   });
   apolloServer.applyMiddleware({ app, cors: false });

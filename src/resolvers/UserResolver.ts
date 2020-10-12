@@ -2,6 +2,7 @@ import { Resolver, Query, Mutation, Arg } from "type-graphql";
 import { User, UserModel } from "../entities/User";
 import Argon2 from "argon2";
 import { UsernamePasswordInput } from "./types/UserInput";
+import { validateRegister } from "../utils/validateRegister";
 @Resolver()
 export class UserResolver {
   @Query(() => String)
@@ -14,6 +15,10 @@ export class UserResolver {
   }
   @Mutation(() => Boolean)
   async register(@Arg("userInput") input: UsernamePasswordInput) {
+    const errors = validateRegister(input);
+    if (errors) {
+      return { errors };
+    }
     const hashedPass = await Argon2.hash(input.password);
     try {
       const user = new UserModel({

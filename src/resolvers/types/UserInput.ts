@@ -4,7 +4,7 @@ export class UsernamePasswordInput {
   @Field()
   email: string;
   @Field()
-  username?: string;
+  username: string;
   @Field()
   password: string;
 }
