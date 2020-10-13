@@ -8,15 +8,18 @@ export class User {
   readonly _id: ObjectId;
 
   @Field(() => String)
-  @Property({ required: true })
+  @Property({ required: true, unique: true })
   email: string;
 
   @Field(() => String, { nullable: true })
-  @Property()
+  @Property({ required: true, unique: true })
   username: string;
 
   @Property({ required: true })
   password: string;
+
+  @Property()
+  tokenVersion: number;
 }
 
 export const UserModel = getModelForClass(User);

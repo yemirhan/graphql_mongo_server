@@ -3,9 +3,18 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+type LoginResponse {
+  accessToken: String!
+  userid: ObjectId!
+}
+
 type Mutation {
+  login(email: String!, password: String!): LoginResponse!
   register(userInput: UsernamePasswordInput!): Boolean!
 }
+
+"""Mongo object id scalar type"""
+scalar ObjectId
 
 type Query {
   hello: String!
