@@ -9,6 +9,7 @@ type LoginResponse {
 }
 
 type Mutation {
+  addPost(recipe: PostInput!, user: UserIdInput!): Post!
   login(email: String!, password: String!): LoginResponse!
   register(userInput: UsernamePasswordInput!): Boolean!
 }
@@ -16,8 +17,23 @@ type Mutation {
 """Mongo object id scalar type"""
 scalar ObjectId
 
+type Post {
+  _id: ObjectId!
+  author: ID!
+  description: String
+  title: String!
+}
+
+input PostInput {
+  description: String
+  title: String!
+}
+
 type Query {
   hello: String!
+  me: User
+  post(postId: ObjectId!): Post
+  posts: [Post!]!
   Users: [User!]!
 }
 
@@ -25,6 +41,10 @@ type User {
   _id: ID!
   email: String!
   username: String
+}
+
+input UserIdInput {
+  _id: ID!
 }
 
 input UsernamePasswordInput {

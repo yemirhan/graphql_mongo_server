@@ -5,13 +5,16 @@ import {
   Arg,
   ObjectType,
   Field,
+  Ctx,
+  Authorized,
 } from "type-graphql";
 import { User, UserModel } from "../entities/User";
 import Argon2 from "argon2";
 import { UsernamePasswordInput } from "./types/UserInput";
 import { validateRegister } from "../utils/validateRegister";
-import { createAccessToken } from "../auth/createRefreshToken";
+import { createAccessToken } from "../createRefreshToken";
 import { ObjectId } from "mongodb";
+import { ExpContext } from "src/expcontext";
 
 @ObjectType()
 class LoginResponse {
@@ -22,6 +25,7 @@ class LoginResponse {
 }
 @Resolver()
 export class UserResolver {
+  @Authorized()
   @Query(() => String)
   hello() {
     return "hi!";
@@ -30,6 +34,18 @@ export class UserResolver {
   async Users(): Promise<User[]> {
     return await UserModel.find({});
   }
+
+  @Query(() => User, { nullable: true })
+  async me(@Ctx() ctx: ExpContext): Promise<User | null> {
+    if (!ctx.req.session!.userId) {
+      return null;
+    }
+
+    return await UserModel.findOne({
+      _id: ctx.req.session!.userId as ObjectId,
+    });
+  }
+
   @Mutation(() => Boolean)
   async register(@Arg("userInput") input: UsernamePasswordInput) {
     const errors = validateRegister(input);
@@ -57,10 +73,10 @@ export class UserResolver {
   @Mutation(() => LoginResponse)
   async login(
     @Arg("email") email: string,
-    @Arg("password") password: string
+    @Arg("password") password: string,
+    @Ctx() ctx: ExpContext
   ): Promise<LoginResponse> {
     const user = await UserModel.findOne({ email });
-    console.log(user);
 
     if (!user) {
       throw new Error("User does not exists");
@@ -69,7 +85,7 @@ export class UserResolver {
     if (!valid) {
       throw new Error("wrong password!");
     }
-
+    ctx.req.session!.userId = user._id;
     return {
       accessToken: createAccessToken(user),
       userid: user._id,

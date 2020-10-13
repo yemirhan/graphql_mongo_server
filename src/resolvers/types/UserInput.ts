@@ -1,10 +1,16 @@
-import { InputType, Field } from "type-graphql";
+import { InputType, Field, ID } from "type-graphql";
+import { ObjectId } from "mongodb";
 @InputType()
 export class UsernamePasswordInput {
-  @Field()
+  @Field(() => String)
   email: string;
-  @Field()
+  @Field(() => String)
   username: string;
-  @Field()
+  @Field(() => String)
   password: string;
+}
+@InputType()
+export class UserIdInput {
+  @Field(() => ID)
+  _id: ObjectId;
 }
