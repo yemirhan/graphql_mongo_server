@@ -12,9 +12,9 @@ import { User, UserModel } from "../entities/User";
 import Argon2 from "argon2";
 import { UsernamePasswordInput } from "./types/UserInput";
 import { validateRegister } from "../utils/validateRegister";
-import { createAccessToken } from "../createRefreshToken";
+import { createAccessToken } from "../utils/createRefreshToken";
 import { ObjectId } from "mongodb";
-import { ExpContext } from "src/expcontext";
+import { ExpContext } from "../utils/expcontext";
 import { sendEmail } from "../utils/sendEmail";
 import { createConfirmationUrl } from "../utils/createConfirmationUrl";
 import { redis } from "../redis";
@@ -24,8 +24,10 @@ class LoginResponse {
   @Field()
   accessToken: string;
   @Field()
-  userid: ObjectId;
+  userId: ObjectId;
 }
+
+/** @class Resolver for user queries and mutations */
 @Resolver()
 export class UserResolver {
   @Authorized()
@@ -33,11 +35,22 @@ export class UserResolver {
   hello() {
     return "hi!";
   }
+
+  /**
+   * Gets all of the users that are signed up
+   * @returns {Promise<Users[]>} All users
+   */
   @Query(() => [User])
   async allUsers(): Promise<User[]> {
     return await UserModel.find({});
   }
 
+  /**
+   *Gets the user if userId is set on query header
+   * @param {ExpContext} ctx Middleware for Express that has express.Request and express.Response objects in it
+   *
+   * @returns {Promise<User | null>} If header for userId is set, function returns User object
+   */
   @Query(() => User, { nullable: true })
   async me(@Ctx() ctx: ExpContext): Promise<User | null> {
     if (!ctx.req.session!.userId) {
@@ -49,11 +62,20 @@ export class UserResolver {
     });
   }
 
+  /**
+   * Registers the user
+   * @param {UsernamePasswordInput} input Defined in ./types/UserInput.ts
+   * @see {UsernamePasswordInput}
+   *
+   * @returns {Promise<Boolean>} If there is a validation error, function returns false, if successful, returns true
+   */
   @Mutation(() => Boolean)
-  async register(@Arg("userInput") input: UsernamePasswordInput) {
+  async register(
+    @Arg("userInput") input: UsernamePasswordInput
+  ): Promise<Boolean> {
     const errors = validateRegister(input);
     if (errors) {
-      return { errors };
+      throw new Error(`${errors}`);
     }
     const hashedPass = await Argon2.hash(input.password);
     const user = new UserModel({
@@ -76,6 +98,13 @@ export class UserResolver {
     return true;
   }
 
+  /**
+   * Registers the user
+   * @param {string} email Email of user
+   * @param {string} password Password of user
+   *
+   * @returns {Promise<LoginResponse>} If user is validated, function returns accessToken and userId
+   */
   @Mutation(() => LoginResponse)
   async login(
     @Arg("email") email: string,
@@ -97,9 +126,15 @@ export class UserResolver {
     ctx.req.session!.userId = user._id;
     return {
       accessToken: createAccessToken(user),
-      userid: user._id,
+      userId: user._id,
     };
   }
+  /**
+   * Registers the user
+   * @param {string} token Token user got from the email
+   *
+   * @returns {Promise<Boolean>} If user is confirmed, returns true, else returns false
+   */
   @Mutation(() => Boolean, { nullable: true })
   async confirmUser(@Arg("token") token: string): Promise<boolean> {
     const confirmToken = await redis.get(token);
