@@ -38,7 +38,7 @@ type Query {
 }
 
 type User {
-  _id: ID!
+  _id: ObjectId!
   email: String!
   username: String
 }
