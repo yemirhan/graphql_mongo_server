@@ -9,7 +9,7 @@ type LoginResponse {
 }
 
 type Mutation {
-  addPost(recipe: PostInput!, user: UserIdInput!): Post!
+  addPost(recipe: PostInput!): Post!
   login(email: String!, password: String!): LoginResponse!
   register(userInput: UsernamePasswordInput!): Boolean!
 }
@@ -19,7 +19,7 @@ scalar ObjectId
 
 type Post {
   _id: ObjectId!
-  author: ID!
+  author: User!
   description: String
   title: String!
 }
@@ -30,21 +30,17 @@ input PostInput {
 }
 
 type Query {
+  allUsers: [User!]!
   hello: String!
   me: User
   post(postId: ObjectId!): Post
   posts: [Post!]!
-  Users: [User!]!
 }
 
 type User {
   _id: ID!
   email: String!
   username: String
-}
-
-input UserIdInput {
-  _id: ID!
 }
 
 input UsernamePasswordInput {

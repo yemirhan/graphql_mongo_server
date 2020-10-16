@@ -7,15 +7,16 @@ import {
   Root,
   Mutation,
   UseMiddleware,
+  Ctx,
   // Mutation,
 } from "type-graphql";
 
 import { Post, PostModel } from "../entities/Post";
-import { User, UserModel } from "../entities/user";
+import { User, UserModel } from "../entities/User";
 import { PostInput } from "./types/PostInput";
 import { ObjectIdScalar } from "../object-id.scalar";
-import { UserIdInput } from "./types/UserInput";
 import { isAuth } from "../middlewares/isAuth";
+import { ExpContext } from "src/expcontext";
 
 // interface Context {
 //   user: User;
@@ -24,29 +25,37 @@ import { isAuth } from "../middlewares/isAuth";
 @Resolver(() => Post)
 export class PostResolver {
   @Query(() => Post, { nullable: true })
-  post(@Arg("postId", () => ObjectIdScalar) postId: ObjectId) {
-    return PostModel.findById(postId);
+  async post(@Arg("postId", () => ObjectIdScalar) postId: ObjectId) {
+    return await PostModel.findById({ _id: postId });
   }
 
   @Query(() => [Post])
-  async posts(): Promise<Array<Post>> {
+  async posts(): Promise<Post[]> {
     return await PostModel.find({});
   }
   @UseMiddleware(isAuth)
   @Mutation(() => Post)
-  async addPost(
-    @Arg("recipe") postInput: PostInput,
-    @Arg("user") user: UserIdInput
-  ): Promise<Post> {
-    const founduser = await UserModel.findById({ _id: user._id });
+  async addPost(@Arg("recipe") postInput: PostInput, @Ctx() ctx: ExpContext) {
+    console.log(ctx.req.session!.userId);
+
+    // const founduser = await UserModel.findById({
+    //   _id: new ObjectId(ctx.req.session!.userId),
+    // });
 
     const post = new PostModel({
       title: postInput.title,
       description: postInput.description,
-      author: { ...founduser },
-    } as Post);
+      author: new ObjectId(ctx.req.session!.userId),
+    });
     await post.save();
-    return post;
+    console.log(post);
+
+    return {
+      id: post._id,
+      title: post.title,
+      description: post.description,
+      author: post.author,
+    };
   }
 
   @FieldResolver()

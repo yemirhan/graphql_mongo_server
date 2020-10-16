@@ -1,7 +1,7 @@
 import { prop as Property, getModelForClass } from "@typegoose/typegoose";
 import { ObjectId } from "mongodb";
 import { Field, ID, ObjectType } from "type-graphql";
-
+import * as mongoose from "mongoose";
 @ObjectType()
 export class User {
   @Field(() => ID)
@@ -20,6 +20,12 @@ export class User {
 
   @Property()
   tokenVersion: number;
+
+  @Property({ default: false })
+  confirmed: boolean;
 }
 
-export const UserModel = getModelForClass(User);
+export const UserModel = getModelForClass(User, {
+  existingMongoose: mongoose,
+  schemaOptions: { collection: "users" },
+});

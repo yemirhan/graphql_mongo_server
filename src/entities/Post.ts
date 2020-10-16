@@ -1,8 +1,9 @@
 import { prop as Property, getModelForClass, Ref } from "@typegoose/typegoose";
 import { ObjectId } from "mongodb";
-import { Field, ID, ObjectType } from "type-graphql";
-
-import { User } from "./user";
+import { Field, ObjectType } from "type-graphql";
+import { User } from "./User";
+import * as mongoose from "mongoose";
+// import { User } from "./User";
 
 @ObjectType()
 export class Post {
@@ -17,9 +18,12 @@ export class Post {
   @Property()
   description?: string;
 
-  @Field(() => ID)
+  @Field(() => User)
   @Property({ ref: User, required: true })
   author: Ref<User>;
 }
 
-export const PostModel = getModelForClass(Post);
+export const PostModel = getModelForClass(Post, {
+  existingMongoose: mongoose,
+  schemaOptions: { collection: "posts" },
+});

@@ -15,6 +15,8 @@ import { validateRegister } from "../utils/validateRegister";
 import { createAccessToken } from "../createRefreshToken";
 import { ObjectId } from "mongodb";
 import { ExpContext } from "src/expcontext";
+import { sendEmail } from "../utils/sendEmail";
+import { createConfirmationUrl } from "../utils/createConfirmationUrl";
 
 @ObjectType()
 class LoginResponse {
@@ -31,7 +33,7 @@ export class UserResolver {
     return "hi!";
   }
   @Query(() => [User])
-  async Users(): Promise<User[]> {
+  async allUsers(): Promise<User[]> {
     return await UserModel.find({});
   }
 
@@ -53,12 +55,12 @@ export class UserResolver {
       return { errors };
     }
     const hashedPass = await Argon2.hash(input.password);
+    const user = new UserModel({
+      email: input.email,
+      username: input.username,
+      password: hashedPass,
+    } as User);
     try {
-      const user = new UserModel({
-        email: input.email,
-        username: input.username,
-        password: hashedPass,
-      } as User);
       await user.save();
     } catch (err) {
       if (err.code === 11000) {
@@ -67,6 +69,9 @@ export class UserResolver {
       console.log(err);
       return false;
     }
+    const emailUser = await UserModel.findOne({ email: input.email });
+
+    await sendEmail(input.email, createConfirmationUrl(emailUser!._id));
     return true;
   }
 
