@@ -1,10 +1,9 @@
 import { ObjectId } from "mongodb";
-// import { redis } from "../redis";
+import { redis } from "../redis";
 import { v4 } from "uuid";
-export const createConfirmationUrl = (userId: ObjectId) => {
-  const id = v4();
-  console.log(id, userId);
+export const createConfirmationUrl = async (userId: ObjectId) => {
+  const token = v4();
+  await redis.set(token, new ObjectId(userId).toString(), "ex", 60 * 60 * 24);
 
-  // redis.set(id, String(userId))
-  return "dddd";
+  return `http://localhost:300/confirm/${token}`;
 };

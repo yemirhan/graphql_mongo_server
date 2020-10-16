@@ -10,6 +10,7 @@ type LoginResponse {
 
 type Mutation {
   addPost(recipe: PostInput!): Post!
+  confirmUser(token: String!): Boolean
   login(email: String!, password: String!): LoginResponse!
   register(userInput: UsernamePasswordInput!): Boolean!
 }

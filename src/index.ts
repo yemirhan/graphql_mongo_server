@@ -46,6 +46,7 @@ import { UserResolver } from "./resolvers/UserResolver";
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
+    useFindAndModify: false,
   });
   const apolloServer = new ApolloServer({
     schema: await buildSchema({

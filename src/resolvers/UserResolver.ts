@@ -17,6 +17,7 @@ import { ObjectId } from "mongodb";
 import { ExpContext } from "src/expcontext";
 import { sendEmail } from "../utils/sendEmail";
 import { createConfirmationUrl } from "../utils/createConfirmationUrl";
+import { redis } from "../redis";
 
 @ObjectType()
 class LoginResponse {
@@ -71,7 +72,7 @@ export class UserResolver {
     }
     const emailUser = await UserModel.findOne({ email: input.email });
 
-    await sendEmail(input.email, createConfirmationUrl(emailUser!._id));
+    await sendEmail(input.email, await createConfirmationUrl(emailUser!._id));
     return true;
   }
 
@@ -86,6 +87,9 @@ export class UserResolver {
     if (!user) {
       throw new Error("User does not exists");
     }
+    if (!user.confirmed) {
+      throw new Error("User is not confirmed!");
+    }
     const valid = await Argon2.verify(user.password, password);
     if (!valid) {
       throw new Error("wrong password!");
@@ -95,5 +99,22 @@ export class UserResolver {
       accessToken: createAccessToken(user),
       userid: user._id,
     };
+  }
+  @Mutation(() => Boolean, { nullable: true })
+  async confirmUser(@Arg("token") token: string): Promise<boolean> {
+    const confirmToken = await redis.get(token);
+    if (!confirmToken) {
+      return false;
+    }
+    const user = await UserModel.findOne({ _id: confirmToken });
+    if (user?.confirmed) {
+      return false;
+    }
+    await UserModel.findOneAndUpdate(
+      { _id: new ObjectId(confirmToken) },
+      { confirmed: true }
+    );
+    await redis.del(confirmToken);
+    return true;
   }
 }
