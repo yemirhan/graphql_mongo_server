@@ -1,5 +1,10 @@
 # GraphQL MongoDB Server
 
+## Description
+
+This is a starter project for a GraphQL server using Apollo-Express TypeGraphQL and Typegoose using as libraries. 
+For Authentication and authorization processes it uses Redis as a database.
+
 ## How to Use
 
 - Download this repository
@@ -11,3 +16,9 @@
 
 - Run command "docker build -t <YOUR_TAG_NAME> ."
 - After that run "docker run -p 4000:4000 <YOUR_TAG_NAME> 
+
+## Contributing
+https://github.com/yemirhan/graphql_mongo_server/issues
+
+## Contact
+syusufemirhan@gmail.com
