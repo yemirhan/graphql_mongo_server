@@ -2,8 +2,15 @@
 
 ## Description
 
-This is a starter project for a GraphQL server using Apollo-Express TypeGraphQL and Typegoose using as libraries. 
+This is a starter project for a GraphQL server using Apollo Server. 
 For Authentication and authorization processes it uses Redis as a database.
+
+## Technology Stack
+- Typescript
+- Apollo-express-server
+- Mongoose (Typegoose)
+- TypeGraphQL
+- Passport.JS (Soon)
 
 ## How to Use
 
