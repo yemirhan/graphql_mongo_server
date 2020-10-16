@@ -7,7 +7,7 @@ import cors from "cors";
 import { buildSchema } from "type-graphql";
 import * as path from "path";
 import { ObjectId } from "mongodb";
-import { ObjectIdScalar } from "./object-id.scalar";
+import { ObjectIdScalar } from "./utils/object-id.scalar";
 import mongoose from "mongoose";
 import { PostResolver } from "./resolvers/PostResolver";
 import cookieParser from "cookie-parser";
