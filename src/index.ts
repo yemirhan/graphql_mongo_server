@@ -56,6 +56,7 @@ import { UserResolver } from "./resolvers/UserResolver";
       authChecker: ({ context: { req } }) => {
         return !!req.session.userId;
       },
+      validate: false,
     }),
     context: ({ req }: any) => ({ req }),
   });

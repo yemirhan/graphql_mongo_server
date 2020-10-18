@@ -56,7 +56,7 @@ export class PostResolver implements ResolverInterface<Post> {
   @UseMiddleware(TypegooseMiddleware)
   @Mutation(() => Post)
   async addPost(
-    @Arg("recipe") postInput: PostInput,
+    @Arg("post") postInput: PostInput,
     @Ctx() ctx: ExpContext
   ): Promise<Post> {
     const post = await PostModel.create({
