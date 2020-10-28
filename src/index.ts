@@ -9,12 +9,10 @@ import * as path from "path";
 import { ObjectId } from "mongodb";
 import { ObjectIdScalar } from "./utils/object-id.scalar";
 import mongoose from "mongoose";
-import { PostResolver } from "./resolvers/PostResolver";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import connectRedis from "connect-redis";
 import { redis } from "./redis";
-import { UserResolver } from "./resolvers/UserResolver";
 
 (async () => {
   const app = express();
@@ -50,7 +48,7 @@ import { UserResolver } from "./resolvers/UserResolver";
   });
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UserResolver, PostResolver],
+      resolvers: [__dirname + "/resolvers/**/*.[t|j]s"],
       scalarsMap: [{ type: ObjectId, scalar: ObjectIdScalar }],
       emitSchemaFile: path.resolve(__dirname, "schema.gql"),
       authChecker: ({ context: { req } }) => {

@@ -5,12 +5,13 @@
 
 type LoginResponse {
   accessToken: String!
-  userid: ObjectId!
+  userId: ObjectId!
 }
 
 type Mutation {
-  addPost(recipe: PostInput!): Post!
+  addPost(post: PostInput!): Post!
   confirmUser(token: String!): Boolean
+  forgotPassword(email: String!): Boolean
   login(email: String!, password: String!): LoginResponse!
   register(userInput: UsernamePasswordInput!): Boolean!
 }
@@ -42,6 +43,10 @@ type User {
   _id: ObjectId!
   email: String!
   username: String
+}
+
+input UserIdInput {
+  _id: ID!
 }
 
 input UsernamePasswordInput {

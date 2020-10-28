@@ -152,4 +152,19 @@ export class UserResolver {
     await redis.del(confirmToken);
     return true;
   }
+  @Mutation(() => Boolean, { nullable: true })
+  async forgotPassword(@Arg("email") email: string): Promise<boolean> {
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      throw new Error("User Not Found");
+    }
+    await sendEmail(email, await createConfirmationUrl(user._id));
+    return true;
+  }
+
+  @Mutation(() => Boolean, { nullable: true })
+  async changePassword(@Arg("email") email: string) {
+    const user = await UserModel.findOne({ email });
+    return user;
+  }
 }
